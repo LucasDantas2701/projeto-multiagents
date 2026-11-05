@@ -1,0 +1,271 @@
+<div class="app">
+  <!-- ===================== TOPO / CONTROLES ===================== -->
+  <header class="topo">
+    <div class="marca">
+      <span class="marca-icone">🔨</span>
+      <div>
+        <h1>Leilão ao Vivo</h1>
+        <p>agentes de IA avaliando e disputando lances</p>
+      </div>
+    </div>
+
+    <form class="controles" (ngSubmit)="iniciar()">
+      <label>
+        <span>Produto</span>
+        <select name="produto" [(ngModel)]="produtoId" [disabled]="s.executando()">
+          @for (p of s.produtos(); track p.id) {
+            <option [value]="p.id">{{ p.icone }} {{ p.nome }}</option>
+          } @empty {
+            <option value="product01">⌚ Relógio de Bolso Vintage</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Pagamento</span>
+        <select name="regra" [(ngModel)]="regra" [disabled]="s.executando()">
+          <option value="lance_vencedor">Paga o próprio lance</option>
+          <option value="segundo_maior_lance">Paga o 2º maior lance</option>
+        </select>
+      </label>
+      <label>
+        <span>Limite de chegada</span>
+        <select name="limite" [(ngModel)]="limiteChegada" [disabled]="s.executando()">
+          <option [ngValue]="1">1</option>
+          <option [ngValue]="2">2</option>
+          <option [ngValue]="3">3</option>
+        </select>
+      </label>
+      <label class="faixa">
+        <span>Orçamento dos compradores ×{{ escala.toFixed(1) }}</span>
+        <input type="range" name="escala" min="0.3" max="1.5" step="0.1" [(ngModel)]="escala" [disabled]="s.executando()" />
+      </label>
+      <label class="chave">
+        <input type="checkbox" name="simulado" [(ngModel)]="simulado" [disabled]="s.executando()" />
+        <span>Simulado <small>(sem Ollama)</small></span>
+      </label>
+      @if (s.executando()) {
+        <button type="button" class="botao parar" (click)="s.parar()">■ Parar</button>
+      } @else {
+        <button type="submit" class="botao">▶ Iniciar leilão</button>
+      }
+    </form>
+  </header>
+
+  @if (s.erro(); as erro) {
+    <div class="aviso-erro">⚠️ {{ erro }}</div>
+  }
+
+  <!-- ===================== ETAPAS ===================== -->
+  <nav class="etapas">
+    @for (e of etapas; track e.fase; let i = $index) {
+      <div class="etapa" [class]="'etapa ' + statusEtapa(e.fase)">
+        <span class="etapa-icone">{{ e.icone }}</span>
+        <span>{{ e.titulo }}</span>
+      </div>
+      @if (i < etapas.length - 1) { <div class="etapa-linha" [class.feita]="statusEtapa(e.fase) === 'feita'"></div> }
+    }
+  </nav>
+
+  <main class="layout">
+    <!-- ===================== PALCO ===================== -->
+    <section class="palco">
+      <div class="luzes"></div>
+
+      <div class="linha-topo">
+        <!-- Mesa de avaliação -->
+        <div class="mesa">
+          <h2>🧐 Mesa de avaliação</h2>
+          <p class="sub">sugerem o preço inicial · o Python filtra</p>
+          <div class="avaliadores">
+            @for (a of avaliadores(); track a.nome) {
+              <div class="avaliador" [class.escolhido]="a.escolhido" [class.invalido]="a.valido === false">
+                <div class="balao-slot">
+                  @if (a.estado === 'pensando') {
+                    <div class="balao pensando"><span></span><span></span><span></span></div>
+                  } @else if (a.estado === 'falou') {
+                    <div class="balao" [class.recusa]="a.decisao !== 'PROPOR'">
+                      @if (a.decisao === 'PROPOR') {
+                        <strong>{{ brl(a.preco) }}</strong>
+                      } @else {
+                        <strong>Recuso</strong>
+                      }
+                      <small>{{ a.justificativa }}</small>
+                    </div>
+                  }
+                </div>
+                <div class="figura">
+                  <app-pessoa [nome]="a.nome" [estado]="estadoAvaliador(a)" />
+                  @if (a.escolhido) { <span class="coroa">⭐</span> }
+                </div>
+                <div class="cracha" [title]="'Estratégia ' + a.estrategia">
+                  <b>{{ nomeCurto(a.nome) }}</b>
+                  <span class="mini">{{ a.especialidades.join(' · ') }} · chega {{ a.chegada }}</span>
+                </div>
+                @if (a.motivo) {
+                  <div class="selo" [class.ok]="a.valido" [class.nok]="!a.valido">
+                    {{ a.valido ? (a.escolhido ? '⭐ Preço inicial' : '✔ Válida') : '✖ ' + a.motivo }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Leiloeiro -->
+        <div class="leiloeiro">
+          <div class="balao-slot grande">
+            @if (s.leiloeiroPensando()) {
+              <div class="balao pensando"><span></span><span></span><span></span></div>
+            } @else if (s.leiloeiroFala(); as fala) {
+              <div class="balao fala-leiloeiro">{{ fala }}</div>
+            } @else {
+              <div class="balao fala-leiloeiro calmo">Senhoras e senhores, escolham um item e iniciem o leilão!</div>
+            }
+          </div>
+          <div class="figura-leiloeiro">
+            <app-pessoa nome="Leiloeiro" [estado]="estadoLeiloeiro()" [martelo]="true" />
+          </div>
+          <div class="pulpito"><span>LEILOEIRO</span></div>
+        </div>
+
+        <!-- Vitrine do produto + placar -->
+        <div class="vitrine">
+          @let produto = produtoSelecionado();
+          <div class="holofote"></div>
+          <div class="vitrine-topo">
+            <div class="vitrine-item">
+              <div class="item" [class.vendido]="s.resultado()">
+                <span class="item-icone">{{ produto?.icone ?? '🎁' }}</span>
+                @if (s.resultado()) { <span class="carimbo">VENDIDO</span> }
+                @if (s.encerrado() && !s.resultado() && s.motivoFinal()) { <span class="carimbo cinza">SEM VENDA</span> }
+              </div>
+              <div class="pedestal"></div>
+            </div>
+            <div class="vitrine-info">
+              <h3>{{ produto?.nome ?? 'Aguardando produto' }}</h3>
+              @if (produto) {
+                <div class="chips">
+                  <span>{{ produto.categoria }}</span>
+                  <span>{{ produto.idade }} anos</span>
+                  <span>relevância {{ produto.relevancia }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="placar">
+            <div class="placar-titulo">Lance atual</div>
+            @for (l of [s.lanceAtual()]; track l?.valor) {
+              <div class="placar-valor" [class.vazio]="!l">{{ l ? brl(l.valor) : brl(s.precoInicial()) }}</div>
+              <div class="placar-lider">
+                @if (l) { 🏆 {{ nomeCurto(l.nome) }} } @else if (s.precoInicial()) { preço inicial · aguardando lances } @else { — }
+              </div>
+            }
+            <div class="placar-grid">
+              <div><small>Custo</small><b>{{ brl(produto?.custo_aquisicao) }}</b></div>
+              <div><small>Reserva</small><b>{{ brl(s.anuncio()?.preco_reserva) }}</b></div>
+              <div><small>Inicial</small><b>{{ brl(s.precoInicial()) }}</b></div>
+              <div><small>Incremento</small><b>{{ brl(s.incremento()) }}</b></div>
+              <div><small>Rodada</small><b>{{ s.rodada() || '—' }}</b></div>
+              <div><small>Pagamento</small><b class="regra">{{ regraTexto(s.regra()) }}</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plateia -->
+      <div class="plateia">
+        <h2>🪧 Plateia de compradores <span class="sub">orçamentos secretos · quem passa sai da disputa</span></h2>
+        <div class="assentos">
+          @for (c of compradores(); track c.nome; let i = $index) {
+            <div class="comprador" [class]="'comprador ' + c.estado">
+              <div class="balao-slot">
+                @if (c.estado === 'pensando') {
+                  <div class="balao pensando"><span></span><span></span><span></span></div>
+                } @else if (c.estado === 'lance' || c.estado === 'vencedor') {
+                  <div class="balao lance">
+                    <strong>{{ brl(c.ultimoLance) }}</strong>
+                    @if (c.fala) { <small>{{ c.fala }}</small> }
+                  </div>
+                } @else if (c.estado === 'fora') {
+                  <div class="balao recusa"><strong>Passo!</strong><small>{{ c.motivo }}</small></div>
+                }
+              </div>
+              <div class="figura">
+                <app-pessoa [nome]="c.nome" [estado]="estadoComprador(c)" [placa]="i + 1" />
+                @if (c.estado === 'vencedor') { <span class="coroa">👑</span> }
+              </div>
+              <div class="cadeira"></div>
+              <div class="cracha">
+                <b>{{ nomeCurto(c.nome) }}</b>
+                <span class="mini">{{ c.estilo.split(':')[0] }}</span>
+                @if (c.orcamento) { <span class="orcamento">orçamento secreto: {{ brl(c.orcamento) }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Resultado -->
+      @if (mostrarOverlay()) {
+        <div class="overlay" (click)="overlayFechado.set(true)">
+          @if (s.resultado(); as r) {
+            <div class="confete">
+              @for (c of confete; track $index) {
+                <i [style.left.%]="c.esquerda" [style.background]="c.cor" [style.animation-delay.s]="c.atraso"
+                   [style.animation-duration.s]="c.duracao" [style.rotate.deg]="c.giro"></i>
+              }
+            </div>
+            <div class="cartao-final">
+              <div class="martelada">🔨</div>
+              <h2>VENDIDO!</h2>
+              <div class="vencedor-figura"><app-pessoa [nome]="r.vencedor" estado="vencedor" [placa]="'★'" /></div>
+              <p class="vencedor-nome">{{ nomeCurto(r.vencedor) }}</p>
+              <div class="numeros">
+                <div><small>Maior lance (alocação)</small><b>{{ brl(r.lance_vencedor) }}</b></div>
+                <div><small>Pagamento ({{ regraTexto(r.regra_pagamento) }})</small><b>{{ brl(r.pagamento) }}</b></div>
+              </div>
+              <p class="dica">Quem vence e quanto paga são decisões distintas. Clique para fechar.</p>
+            </div>
+          } @else {
+            <div class="cartao-final sem-venda">
+              <div class="martelada">🚫</div>
+              <h2>SEM VENDA</h2>
+              <p>{{ s.motivoFinal() }}</p>
+              <p class="dica">Sem acordo é um resultado válido: ninguém é escolhido por conveniência. Clique para fechar.</p>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ===================== LATERAL ===================== -->
+    <aside class="lateral">
+      <div class="cartao escada">
+        <h3>📈 Escada de lances</h3>
+        <div class="escada-lista">
+          @for (l of lancesRecentes(); track $index) {
+            <div class="degrau">
+              <span class="degrau-nome">{{ nomeCurto(l.nome) }}</span>
+              <div class="barra"><div [style.width.%]="(l.valor / maiorLance()) * 100"></div></div>
+              <b>{{ brl(l.valor) }}</b>
+            </div>
+          } @empty {
+            <p class="vazio">Nenhum lance ainda.</p>
+          }
+        </div>
+      </div>
+
+      <div class="cartao narracao">
+        <h3>🎙️ O que está acontecendo</h3>
+        <ul>
+          @for (e of s.log(); track $index) {
+            <li [class]="e.destaque ?? ''"><span>{{ e.icone }}</span> {{ e.texto }}</li>
+          } @empty {
+            <li class="vazio">Inicie um leilão para ver a narração.</li>
+          }
+        </ul>
+      </div>
+    </aside>
+  </main>
+</div>
