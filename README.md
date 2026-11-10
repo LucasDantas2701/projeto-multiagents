@@ -1,77 +1,69 @@
-# projeto-multiagents
+# projeto-multagents
 
-> **Projeto de estudo.** Este repositório existe para **entender melhor como funcionam sistemas multiagentes (multi-agent systems) com LLMs e exercitar na prática** o que foi visto em aula. Não é um produto pronto: o foco é aprender, testar ideias e observar como agentes diferentes colaboram (e erram) entre si.
+Projeto de estudo e experimentação em multiagentes, lógica de alocação e protótipos de sistemas com Python e notebooks Jupyter.
 
-## O que é
+A ideia central é explorar como agentes, regras e dependências podem colaborar para resolver problemas pequenos e bem definidos, sem depender de um sistema completo de produção.
 
-Um conjunto de experimentos em Python/Jupyter usando **LangChain** + **LangGraph** com modelos rodando no **Ollama**. Cada agente é criado com `create_agent`, recebe seu próprio *system prompt* (seu "papel") e, quando faz sentido, ferramentas (`@tool`) que executam lógica determinística em Python.
+## O que está no repositório
 
-A ideia central que estou exercitando:
+O projeto reúne vários exercícios práticos, com foco em:
 
-- **Separar responsabilidades** entre agentes com papéis distintos;
-- **Ferramentas para o que precisa ser exato** (contas, formatação, validação), deixando o LLM com o texto;
-- **Encadear e revisar**: um agente produz, outro confere, outro decide;
-- **Controlar a comunicação** entre agentes (quem pode falar com quem);
-- **Conferir o resultado em Python**, sem confiar cegamente no que o modelo diz.
+- delegação entre agentes
+- fluxos de trabalho com papéis definidos
+- comunicação entre partes do sistema
+- regras de dependência e conferência
+- formação de equipes por habilidade/competência
+- protótipos de jogos e simulações
 
-## Estrutura
+## Estrutura atual
 
-```
-projeto-multiagents/
+```text
+projeto-multagents/
 ├── contents/
-│   ├── agent-delegation/   # delegação e encadeamento entre agentes
-│   └── envelops/           # comunicação via envelopes com permissões
-└── docs/                   # material de apoio das aulas (PDFs do Módulo 4)
+│   ├── agent_delegation/
+│   │   ├── article_maker.ipynb
+│   │   ├── exemplo.ipynb
+│   │   └── README.md
+│   ├── coalition/
+│   │   ├── example.ipynb
+│   │   └── rpg.ipynb
+│   ├── envelops/
+│   │   ├── envelops.ipynb
+│   │   └── README.md
+│   └── negociacao_&_concessao/
+│       └── ...
+├── docs/
+├── README.md
+└── venv/
 ```
 
-| Pasta | Conteúdo |
-| --- | --- |
-| [`contents/agent-delegation/`](contents/agent-delegation/README.md) | `exemplo.ipynb` (aula: pedido fictício passando por Ana, Bruno e Carla) e `article_maker.ipynb` (pipeline de artigo acadêmico em ABNT com Escritor, Checador de Fontes e Revisor em loop). |
-| [`contents/envelops/`](contents/envelops/README.md) | `envelops.ipynb`: o mesmo pipeline de artigo, agora com um **Supervisor** que delega por **envelopes** (`remetente`, `destinatario`, `conteudo`) checados contra uma tabela de permissões. |
-| `docs/` | PDFs das aulas 1, 2 e 3 do Módulo 4. |
+## Exemplos principais
 
-Cada pasta em `contents/` tem seu próprio README com os detalhes do fluxo.
+### 1. Delegação de agentes
+Na pasta [contents/agent_delegation](contents/agent_delegation), há exemplos de fluxo em que um pedido passa por diferentes papéis e etapas, como produção, conferência e revisão.
 
-## Como rodar
+### 2. Coalition / alocação por capacidade
+O notebook [contents/coalition/example.ipynb](contents/coalition/example.ipynb) mostra a ideia central do projeto: pessoas têm habilidades, tarefas exigem requisitos e o sistema escolhe a melhor equipe ou a melhor dupla para concluir a etapa.
 
-### Requisitos
+### 3. RPG simplificado
+O notebook [contents/coalition/rpg.ipynb](contents/coalition/rpg.ipynb) usa a mesma lógica do exemplo, mas adaptada para personagens, classes e missões de dungeon. O foco é o mecanismo de formação de party por habilidade e dependência entre missões.
 
-- Python 3.10+
-- [Ollama](https://ollama.com/) rodando localmente (`http://localhost:11434`) com o modelo `qwen3.5:9b` baixado, **ou** acesso ao Ollama na nuvem com chave de API (o `exemplo.ipynb` foi feito para o Google Colab).
+## Como usar
 
-Versões fixadas usadas no projeto:
+1. Abra o notebook desejado em [contents](contents)
+2. Execute as células em ordem
+3. Ajuste os dados de entrada para testar diferentes cenários
+4. Observe como regras e combinações afetam o resultado
 
-```
-langchain==1.4.7
-langchain-core==1.7.1
-pydantic==2.13.5
-langchain-ollama==1.1.0
-langgraph==1.2.18
-ollama==0.6.3
-```
+## Tecnologias usadas
 
-### Passo a passo (local)
+- Python
+- Jupyter Notebooks
+- LangChain
+- LangGraph
+- Ollama
 
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/macOS
-source venv/bin/activate
+## Observação
 
-pip install langchain==1.4.7 langchain-core==1.7.1 pydantic==2.13.5 langchain-ollama==1.1.0 langgraph==1.2.18 ollama==0.6.3 jupyter
+Este repositório é um laboratório de estudos. O objetivo não é entregar um produto final, mas praticar a lógica de agentes, regras e coordenação de tarefas em exemplos simples e didáticos.
 
-ollama pull qwen3.5:9b
-jupyter notebook
-```
-
-Depois é só abrir o notebook desejado em `contents/` e executar as células em ordem.
-
-## Observações
-
-- Todos os dados (pedidos, estoque, temas de artigo) são **fictícios**; nada é executado de verdade.
-- As respostas dos LLMs variam a cada execução. Faz parte do exercício observar quando os agentes acertam, quando erram e como a revisão (ou a conferência em Python) pega esses erros.
-- Material de referência:
-  - [Agentes com `create_agent` — LangChain](https://docs.langchain.com/oss/python/langchain/agents)
-  - [ChatOllama — LangChain](https://docs.langchain.com/oss/python/integrations/chat/ollama)
-  - [API na nuvem — Ollama](https://docs.ollama.com/cloud)
