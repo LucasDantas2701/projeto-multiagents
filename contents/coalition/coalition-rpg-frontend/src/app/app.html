@@ -1,0 +1,88 @@
+<main class="app-shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Coalition / RPG</p>
+      <h1>Formação de party por habilidade</h1>
+    </div>
+    <div class="badges">
+      <span class="badge ok">M1 confirmada</span>
+      <span class="badge warn">M4 dependente</span>
+    </div>
+  </header>
+
+  <section class="summary-grid">
+    <article class="panel">
+      <h2>Entrada do notebook</h2>
+      <ul class="compact-list">
+        <li><strong>Compromisso M1:</strong> Aria fica responsável</li>
+        <li><strong>Ativos:</strong> Aria, Bruno, Cleo, Dara, Eros</li>
+        <li><strong>Disponíveis para final:</strong> Aria, Bruno, Cleo, Dara</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Regras do algoritmo</h2>
+      <ol class="rules">
+        <li>Se M1 está atribuída, prioriza o responsável se ele atende ao requisito.</li>
+        <li>Para M2 e M3, escolhe o personagem com menor carga atual.</li>
+        <li>Final da dungeon exige dupla com força + cura.</li>
+      </ol>
+    </article>
+  </section>
+
+  <section class="board">
+    <div class="panel members-panel">
+      <h2>Personagens</h2>
+      <div class="member-grid">
+        <div class="member-card" *ngFor="let item of personagensOrdenados">
+          <div class="avatar">{{ item[0][0] }}</div>
+          <div class="member-info">
+            <h3>{{ item[0] }}</h3>
+            <p>{{ item[1].classe }}</p>
+            <div class="skills">
+              <span *ngFor="let habilidade of item[1].habilidades">{{ habilidade }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel mission-panel">
+      <h2>Fluxo das missões</h2>
+      <div class="mission-list">
+        <div class="mission-row" *ngFor="let item of resultadoFinal.plano">
+          <div class="mission-title-block">
+            <span class="mission-code">{{ item.missao }}</span>
+            <span class="mission-label">{{ item.missao === 'M4' ? 'Boss final' : 'Missão' }}</span>
+          </div>
+          <div class="mission-team">
+            <span *ngIf="item.equipe.length; else semEquipe">{{ item.equipe.join(', ') }}</span>
+            <ng-template #semEquipe>
+              <span class="empty-team">Sem equipe</span>
+            </ng-template>
+          </div>
+          <span class="status" [class.alocada]="item.estado === 'alocada'" [class.dependencia]="item.estado === 'dependencia_pendente'" [class.sem-capacidade]="item.estado === 'sem_capacidade' || item.estado === 'sem_acordo'">
+            {{ estadoTexto(item.estado) }}
+          </span>
+          <small *ngIf="item.depende" class="dependencia-text">Depende de: {{ item.depende.join(', ') }}</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel final-panel">
+    <h2>Resultado final</h2>
+    <div class="final-box">
+      <div>
+        <span class="label">Equipe da missão final</span>
+        <strong>{{ resultadoFinal.plano[resultadoFinal.plano.length - 1].equipe.join(', ') || 'Sem dupla' }}</strong>
+      </div>
+      <div>
+        <span class="label">Estado</span>
+        <strong>{{ estadoTexto(resultadoFinal.plano[resultadoFinal.plano.length - 1].estado) }}</strong>
+      </div>
+    </div>
+  </section>
+</main>
+
+

@@ -1,0 +1,305 @@
+.app-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #8ae0ff;
+  font-size: 0.7rem;
+  letter-spacing: 0.18rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.1;
+  color: #f5d9a6;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.03rem;
+  border: 1px solid transparent;
+}
+
+.badge.ok {
+  background: rgba(56, 189, 100, 0.12);
+  border-color: rgba(110, 231, 183, 0.45);
+  color: #b8f9cf;
+}
+
+.badge.warn {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(253, 186, 116, 0.45);
+  color: #ffd8a8;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel {
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 32px rgba(2, 6, 23, 0.25);
+}
+
+.panel h2 {
+  margin: 0;
+  padding: 1rem 1rem 0.75rem;
+  font-size: 1.05rem;
+  color: #f5d9a6;
+}
+
+.compact-list,
+.rules {
+  margin: 0;
+  padding: 0 1rem 1rem;
+  list-style: none;
+}
+
+.compact-list li,
+.rules li {
+  color: #dfe7f8;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.rules {
+  list-style: decimal;
+  padding-left: 2rem;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: minmax(350px, 1.2fr) minmax(0, 1.8fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.members-panel {
+  min-height: 100%;
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+  padding: 0 1rem 1rem;
+}
+
+.member-card {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.8rem;
+  border-radius: 14px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: #1f2937;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.member-info h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.member-info p {
+  margin: 0.2rem 0 0.55rem;
+  color: #a5b4cf;
+  font-size: 0.8rem;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.skills span {
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  color: #b6f5ff;
+  font-size: 0.68rem;
+}
+
+.mission-panel {
+  padding-bottom: 0.5rem;
+}
+
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0 1rem 1rem;
+}
+
+.mission-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1.3fr) 150px;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.mission-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mission-code {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f5d9a6;
+}
+
+.mission-label {
+  font-size: 0.68rem;
+  color: #a5b4cf;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+}
+
+.mission-team {
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  color: #dfe7f8;
+}
+
+.empty-team {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.status {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.4rem 0.7rem;
+  letter-spacing: 0.03rem;
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+.status.alocada {
+  background: rgba(34, 197, 94, 0.14);
+  color: #bbf7d0;
+}
+
+.status.sem-capacidade,
+.status.sem-acordo {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fecaca;
+}
+
+.status.dependencia {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fde68a;
+}
+
+.dependencia-text {
+  grid-column: 2 / -1;
+  color: #a5b4cf;
+}
+
+.final-panel {
+  padding-bottom: 1rem;
+}
+
+.final-box {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+}
+
+.final-box > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border-radius: 14px;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.64);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.label {
+  color: #a5b4cf;
+  font-size: 0.72rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+}
+
+.final-box strong {
+  font-size: 1.15rem;
+  color: #f8fafc;
+}
+
+@media (max-width: 860px) {
+  .summary-grid,
+  .board,
+  .final-box {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dependency-text {
+    grid-column: auto;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
